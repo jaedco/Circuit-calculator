@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+
+<!-- cktCalc.html
+	created on 2104 12 19
+	styles: internal only
+	scripts: internal only
+	images: none
+	media: none
+	links: cktCalcDirections.html
+ -->
+
+<html>
+
+<head>
+	<title>Circuit Calculator</title>
+	<style>
+		body {
+			font-size: large;
+			background-color: antiquewhite;
+		}
+		.title {
+			text-align: center;
+		}
+		#main {
+			background-color: navajowhite;
+			border: 8px red groove;
+			border-radius: 16px;
+			width: 700px;
+			padding: 10;
+		}
+		#compValues {
+			width: 500px;
+			margin: auto;
+			font-size: x-large;
+			font-variant: small-caps;
+			background-color: #CCCCFF;
+			text-align: center;
+		}
+		#compValues.radioButton {
+			font-variant: normal;
+		}
+		input[type=number]{
+			font-size: large;
+			width: 50px;
+}
+		input[type=button], button {
+			font-size:large;
+			color: green;
+			width: 100px;
+			height: 35px;
+			border: 2px red outset;
+		}
+		button {
+			width: 150px;
+		}
+		#results {
+			width: 500px;
+			margin: auto;
+			font-size: x-large;
+			font-variant: small-caps;
+			background-color: #FFFFCC;
+		}
+		
+		table.results, th.results, td.results {
+		  font-size: 0.85em;
+		  border: medium blue solid;
+		  border-radius: 8px;
+		  width: 450px;
+		  text-align: center;
+		  margin-left: auto;
+		  margin-right: auto;
+		}
+		#directions {
+			background-color: #E0E0E0;
+			color: green;
+			margin: auto;
+			width: 200px;
+			border: 2px maroon groove;
+			font-style: italic;
+		}
+		.data:hover {
+			background-color: #45BA4E;
+		}
+		.data:focus {
+			background-color: #C2838F;
+		}
+	</style>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script> 
+		$(document).ready(function() {
+		  $("#results").slideUp(100);
+		});
+	</script>
+	
+	<script type="text/javascript">
+		var ET;
+    var R1;
+    var R2;
+    var R3;
+    var ckt;
+		var RT;
+		var IT;
+		var PT;
+		var IR1;
+		var IR2;
+		var IR3;
+		var VR1;
+		var VR2
+		var VR3;
+		var PR1;
+		var PR2;
+		var PR3;
+    var calc = true;
+		var noR1 = false;
+		var noR2 = false;
+		var noR3 = false;
+	
+
+		function calcResults(form) {
+	    ET = Math.abs(form.battVoltage.value);
+	    R1 = Math.abs(form.res1.value);
+	    R2 = Math.abs(form.res2.value);
+	    R3 = Math.abs(form.res3.value);
+	    
+			// check the form for which radio button is selected
+			var radios = document.getElementsByName('cktType');
+			for (var i = 0, length = radios.length; i < length; i++) {
+			    if (radios[i].checked) {
+			        ckt = radios[i].value;
+		        // only one radio can be logically checked, don't check the rest
+		        break;
+			    }	     
+			}	    
+
+	    calc = true;
+
+			// test the voltage and resistance values for errors
+			if (ET == 0) {
+	    	alert("You cannnot use ZERO for the battery voltage!");
+	    	calc = false;	
+	    }
+	    if (R1 == 0) { noR1 = true } else { noR1 = false };
+	    if (R2 == 0) { noR2 = true } else { noR2 = false };
+	    if (R3 == 0) { noR3 = true } else { noR3 = false };
+	    if (noR1 && noR2 && noR3 ) {
+				alert("No resistor values entered!\nCalculations cannot be performed.");
+	    	calc = false;	
+	    }
+	    // Start performing calculations
+			if (calc) {
+//				alert("Calculations beginning...");
+				if (ckt == "Series") {
+					RT = R1 + R2 + R3;
+					IT = ET / RT;
+					PT = IT * ET
+					if (!noR1) {
+						IR1 = IT;
+						VR1 = IT * R1;
+						PR1 = IT * VR1;
+					}
+					if (!noR2) {
+						IR2 = IT;
+						VR2 = IT * R2;
+						PR2 = IT * VR2;
+					}
+					if (!noR3) {
+						IR3 = IT;
+						VR3 = IT * R3;
+						PR3 = IT * VR3;
+					}
+				}
+				if (ckt == "Parallel") {
+					IT = 0;
+					if (!noR1) {
+						IR1 = ET/R1;
+						VR1 = ET;
+						PR1 = IR1 * ET;
+						IT = IT + IR1;
+					}
+					if (!noR2) {
+						IR2 = ET/R2;
+						VR2 = ET;
+						PR2 = IR2 * ET;
+						IT = IT + IR2;
+					}
+					if (!noR3) {
+						IR3 = ET/R3;
+						VR3 = ET;
+						PR3 = IR3 * ET;
+						IT = IT + IR3;
+					}
+					RT = ET / IT;
+					PT = IT * ET
+				} 
+				displayResults();
+			} else {
+				alert("Data entry error!");
+			}
+		}
+
+		function popUp(URL) {
+			day = new Date();
+			id = day.getTime();
+			eval("page" + id + " = window.open(URL, '" + id + "', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=650,height=400,left = 760,top = 390');");
+		}
+
+		function displayResults() {
+			document.getElementById('RT').innerHTML = RT.toFixed(2) + " \u03A9"; 
+			document.getElementById('ET').innerHTML = ET.toFixed(2) + " V";
+			document.getElementById('IT').innerHTML = IT.toFixed(2) + " A"; 
+			document.getElementById('PT').innerHTML = PT.toFixed(2) + " W"; 
+			
+			if (noR1) {
+		    document.getElementById('R1').innerHTML = "";
+		    document.getElementById('IR1').innerHTML = "";
+		    document.getElementById('VR1').innerHTML = "";
+		    document.getElementById('PR1').innerHTML = "";
+			} else {
+				document.getElementById('R1').innerHTML = R1.toFixed(2) + " \u03A9"; 
+				document.getElementById('IR1').innerHTML = IR1.toFixed(2) + " A"; 
+				document.getElementById('VR1').innerHTML = VR1.toFixed(2) + " V"; 
+				document.getElementById('PR1').innerHTML = PR1.toFixed(2) + " W"; 
+			}
+			if (noR2) {
+		    document.getElementById('R2').innerHTML = "";
+		    document.getElementById('IR2').innerHTML = "";
+		    document.getElementById('VR2').innerHTML = "";
+		    document.getElementById('PR2').innerHTML = "";
+			} else {
+				document.getElementById('R2').innerHTML = R2.toFixed(2) + " \u03A9"; 
+				document.getElementById('IR2').innerHTML = IR2.toFixed(2) + " A"; 
+				document.getElementById('VR2').innerHTML = VR2.toFixed(2) + " V"; 
+				document.getElementById('PR2').innerHTML = PR2.toFixed(2) + " W"; 
+			}
+			if (noR3) {
+		    document.getElementById('R3').innerHTML = "";
+		    document.getElementById('IR3').innerHTML = "";
+		    document.getElementById('VR3').innerHTML = "";
+		    document.getElementById('PR3').innerHTML = "";
+			} else {
+				document.getElementById('R3').innerHTML = R3.toFixed(2) + " \u03A9"; 
+				document.getElementById('IR3').innerHTML = IR3.toFixed(2) + " A"; 
+				document.getElementById('VR3').innerHTML = VR3.toFixed(2) + " V"; 
+				document.getElementById('PR3').innerHTML = PR3.toFixed(2) + " W"; 
+			}
+			$("#results").slideDown(2000);
+		}  // end of displayResults function 
+
+	</script>
+</head>
+
+<body>
+
+<div id="main">
+	<h1 class="title">Three Resistor Calculation Tool for Tutors</h1>
+	<p class="title" id="directions" onclick="javascript:popUp('cktCalcDirections.html')">Click for directions</p>
+
+	<div id="compValues">
+		<h2 class="title">Values</h2>
+		<form action="" method="GET" name="myform">
+		  Enter a battery voltage: <input name="battVoltage" type="number" value="12" min="1" max="50" class="data"> V<br /><br />
+		  Enter resistor 1 value: <input name="res1" type="number" value="2" min="1" max="1000" step="1" class="data"> &Omega;<br /><br />
+		  Enter resistor 2 value: <input name="res2" type="number" value="2" min="0" max="1000" step="1" class="data"> &Omega;<br /><br />
+		  Enter resistor 3 value: <input name="res3" type="number" value="2" min="0" max="1000" step="1" class="data"> &Omega;<br /><br />
+		  
+		  Select Circuit Type<br />
+		  <input class="radioButton" name="cktType" type="radio" value="Series" checked>Series
+		  <input class="radioButton" name="cktType" type="radio" value="Parallel">Parallel
+		  <br /><br />
+		  <input name="button" onclick="calcResults(this.form)" type="button" value="Calculate">
+			<button id="ReLoad" onClick="history.go(0)">Reset values</button>
+			<br />
+			<br />
+		</form>
+	</div>
+
+			<div id="results">
+				<h2 class="title">Results</h2>
+				<table class="results">
+					<tr>
+						<th></th>
+						<th>R (&Omega;)</th>
+						<th>I (A)</th>
+						<th>E (V)</th>
+						<th>P (W)</th>
+					</tr>
+					<tr>
+						<td>R1</td>
+						<td id="R1">R1 &omega;</td>
+						<td id="IR1">IR1 A</td>
+						<td id="VR1">VR1 V</td>
+						<td id="PR1">PR1 W</td>
+					</tr>
+					<tr>
+						<td>R2</td>
+						<td id="R2">R2 &omega;</td>
+						<td id="IR2">IR2 A</td>
+						<td id="VR2">VR2 V</td>
+						<td id="PR2">PR2 W</td>
+					</tr>
+					<tr>
+						<td>R3</td>
+						<td id="R3">R3 &omega;</td>
+						<td id="IR3">IR3 A</td>
+						<td id="VR3">VR3 V</td>
+						<td id="PR3">PR3 W</td>
+					</tr>
+					<tr>
+						<td>Total</td>
+						<td id="RT">RT &omega;</td>
+						<td id="IT">IT A</td>
+						<td id="ET">ET V</td>
+						<td id="PT">PT W</td>
+					</tr>
+				</table>
+				<br />
+			</div> <!-- Results -->
+			<br />
+</div> <!-- Main -->
+
+</body>
+
+</html>
